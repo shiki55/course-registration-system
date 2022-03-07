@@ -17,14 +17,14 @@ sleep(1)
 
 # create tables
 my_sql_conn = MySQLConnect()
-with open('../database_files/create_table.sql') as f:
+with open('../sql_files/create_table.sql') as f:
     my_sql_conn.execute_query(f.read())
 
 sleep(2)
 
 # populate tables
 my_sql_conn = MySQLConnect()
-with open('../database_files/populate.sql') as f:
+with open('../sql_files/populate.sql') as f:
     insert_queries = [q for q in f.read().split(";") if len(q.strip()) > 0]
     for insert_query in insert_queries:
         my_sql_conn.execute_query(insert_query + ';', commit=True)
