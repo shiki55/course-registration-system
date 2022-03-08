@@ -51,8 +51,8 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
         - section id: 11111114
 
     - "Databases" (has prerequisite requirement to complete 'Introduction to Computer Systems')
-        - section id: 11111116
-        \*login as "Ketanji Jackson" to test the prerequisite check
+        - section id: 11111116\
+        \*login as "Ketanji Jackson" and add this course section to test prerequisite check
 
     - "Distributed Systems" (has instructor approval required)
         - section id: 11111117
