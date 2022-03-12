@@ -81,7 +81,8 @@ class TestAddCourse(unittest.TestCase):
         student_id = self.student_id1
         course_id = self.course_section_id1_databases
         course_reg.add_course(student_id=student_id, course_id=course_id)
-        mock_print.assert_called_with('Course id of courses you need to take before you can register: {98901928}')
+        mock_print.assert_called_with(f"\033[1m\tCourse Name:\033[0m Introduction to Computer Systems")
+
 
   
 

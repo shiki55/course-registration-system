@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .RegistrationApproval import RegistrationApproval, IStudentOverload, IApprovalRequired
 from .RegistrationAlternative import RegistrationAlternative
+from .ScheduleConflict import ScheduleConflict
 from .DB import DB
 
 class RegistrationHandler(ABC):
@@ -98,8 +99,12 @@ class PrerequisiteNotMetHandler(RegistrationHandler):
         required_prereqs_set = set(required_prereqs_result)
         if len(required_prereqs_set) > 0 and \
            len(courses_taken_set.intersection(required_prereqs_set)) < len(required_prereqs_set):
+           print("")
            print("Cannot add because you have not taken the prerequisites.")
-           print(f"Course id of courses you need to take before you can register: {required_prereqs_set-courses_taken_set}")
+           print("The following course(s) must be taken and completed before registering for the requested course:")
+           for need_to_take_course_id in required_prereqs_set-courses_taken_set:
+               course_info = self._db.get_course_info(course_id=need_to_take_course_id)
+               print(f"\033[1m\tCourse Name:\033[0m {course_info['name']}")
            return 
         return super().process_request(student_id, course_id)
 
@@ -144,3 +149,38 @@ class AlreadyRegisteredHandler(RegistrationHandler):
                 return
         return super().process_request(student_id, course_id)
 
+
+class ScheduleConflictHandler(RegistrationHandler):
+    '''handler for request to register for a course section/lab which leads to schedule conflict'''
+    schedule_conflict = ScheduleConflict()
+    def process_request(self, student_id, course_id):
+        course_section_or_lab_info = self._db.get_course_section_info(course_section_id=course_id) if self._db.is_course_section(id=course_id) \
+                                     else self._db.get_lab_info(lab_id=course_id)
+        all_registered_records = []
+        for record in self._db.get_all_registered_course_sections(student_id=student_id) + self._db.get_all_registered_labs(student_id=student_id):
+            course_section_or_lab_id = record['course_section_id'] if record.get('course_section_id') is not None else record['lab_id']
+            if self._db.is_course_section(id=course_section_or_lab_id):
+                all_registered_records.append(self._db.get_course_section_info(course_section_id=course_section_or_lab_id))
+            else:
+                all_registered_records.append(self._db.get_lab_info(lab_id=course_section_or_lab_id))
+
+        all_conflicts = self.schedule_conflict.get_all_conflicts(
+                                                                desired_course_or_lab=course_section_or_lab_info,
+                                                                all_registered=all_registered_records
+                                                                )
+        if all_conflicts:
+            print("Cannot register due to scheduling conflicts with the following courses:")
+            print("")
+            for conflicting_id in all_conflicts:
+                if self._db.is_course_section(id=conflicting_id):
+                    course_type = 'lecture'
+                    course_name = self._db.get_course_name_from_section_id(course_section_id=conflicting_id)
+                else:
+                    course_type = 'lab'
+                    course_name = self._db.get_course_name_from_lab_id(lab_id=conflicting_id)
+                print(f"\033[1m\tCourse Name:\033[0m {course_name}")
+                print(f"\033[1m\tType:\033[0m {course_type}")
+                print("")
+            return
+        return super().process_request(student_id, course_id)
+        

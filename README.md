@@ -6,10 +6,16 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
 # A CLI app mock-up of a course registration system
 **Project Scope**: My project focused on implementing student usecases to handle the following actions:
 1. course/lab registration (add course, drop course, drop all course)
-    - a series of seven validations are performed before the database is updated with the requested course registration. This includes checking if the student has met the prerequisite requirements, ensuring the course enrollment is not full, and more. Each validation step has it's own implementation for what occurs when it is not met. For example, if the course enrollment is already at full capacity, the user will be presented with alternative sections of the same course/lab. Details can be found in the "CourseRegistration.py" file under the regie_pkg directory. 
+    - a series of eight validations are performed before the database is updated with the requested course registration. This includes checking if the student has met the prerequisite requirements, ensuring the course enrollment is not full, and more. Each validation step has it's own implementation for what occurs when it is not met. For example, if the course enrollment is already at full capacity, the user will be presented with alternative sections of the same course/lab. Details can be found in the "CourseRegistration.py" file under the regie_pkg directory. 
 2. student views (currently registered courses, course schedule, transcript, and account restrictions)
+    - currently registered courses: all registered courses are displayed above the menu options after login
+    - course schedule: a week view of the student's schedule is displayed along with course details such as location, start and end times, etc.
+    - transcript: displays the student's academic transcript
+    - account restrictions: displays account restrictions the student has, if any. 
     
-3. change password 
+3. change password
+    - students may change their password after correctly entering their current account password.
+
 
 ### Setting up the database (MySQL and MongoDB)
 - The MySQL connection configration has the following settings:
@@ -18,7 +24,7 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
  passwd="123abc$$$",\
 >database="REGIE_db"
 
-\*  Please change the passwd constant to match whatever password is used for your MySQL instance by going to "MySQLConnect.py" and "build_mysql_db.py". Other parameters may need to be changed depending on your local MySQL set up. 
+\*  Please change the *passwd* constant to match whatever password is used for your MySQL instance by going to "MySQLConnect.py" and "build_mysql_db.py". Other parameters may need to be changed depending on your local MySQL set up. 
 - cd into the "src" directory and run the python script "build_mysql_db.py". This will create the MySQL database REGIE_db and populate it with pre-existing data which can be found in the file "populate.sql". 
 - cd into the src directory and run the python script "build_mongo_db.py". This will create the mongodb database password_db and populate it with pre-existing data which can be found in the script "build_mongo_db.py" itself. Mongodb is used to store account passwords.
 
@@ -31,7 +37,7 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
 
 ### How to use the app
 - login using the student id and password of any of the student account below:
-    - "Volodymyr Zelenskyy" (recommended because it has most data populated)
+    - "Volodymyr Zelenskyy" (use for testing transcript view)
         - student id: 1
         - password: pass123
     - "Floyd Mayweather" (has student account restriction for "tuition not paid" so cannot register)
@@ -52,11 +58,17 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
 
     - "Databases" (has prerequisite requirement to complete 'Introduction to Computer Systems')
         - section id: 11111116\
-        \*login as "Ketanji Jackson" and add this course section to test prerequisite check
+        \*login as "Ketanji Jackson" and add this course section to test the prerequisite check
 
     - "Distributed Systems" (has instructor approval required)
         - section id: 11111117
+    
+    - "C++ for Advanced Programmers" (has schedule conflict with section id 11111114 and 11111115)
+        - section id: 11111129\
+        \*login as "Volodymyr Zelenskyy" and add this course section to test schedule conflict. Make sure the account is registered for either 11111114 or 11111115 (or both)
 
+- Some unit tests can be found in the directory tests. 
+    - cd into the tests directory and run each test script. 
 
 ### Design Patterns Used
 - **Chain of Responsibility:** 

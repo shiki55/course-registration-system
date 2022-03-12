@@ -10,6 +10,7 @@ from .RegistrationHandler import (
                                 PrerequisiteNotMetHandler,
                                 ApprovalRequiredHandler,
                                 AddCourseHandler,
+                                ScheduleConflictHandler,
                                 )
 
 
@@ -25,6 +26,7 @@ class CourseRegistration:
                                                     StudentOverloadHandler(),
                                                     PrerequisiteNotMetHandler(),
                                                     ApprovalRequiredHandler(),
+                                                    ScheduleConflictHandler(),
                                                     AddCourseHandler(),
                                                 )
         self.__db = DB()
@@ -40,10 +42,12 @@ class CourseRegistration:
         5. check if student is overloading
         6. check if student has met prerequisites
         7. check if course requires instructor approval
-        8. update database w/ student registration
+        8. check if registering for course results in schedule conflict
+        9. update database w/ student registration
 
-        NOTE: course_id is either course_section_id or lab_id
+        NOTE: course_id is either course_section_id (id of course section) or lab_id (id of lab)
         '''
+        
         self._add_course_chain.process_request(student_id=student_id, course_id=course_id)
         return 
     
