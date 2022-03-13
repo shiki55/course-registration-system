@@ -9,13 +9,13 @@ class InputValidator(ABC):
         pass
 
 
-class StudentIDInputValidator:
+class StudentIDInputValidator(InputValidator):
     def is_valid(self, input_val: str)-> Tuple:
         if input_val.strip().isdigit():
             return '', True
         return "Student ID must be an integer. Please try again.", False
 
-class MenuChoiceInputValidator:
+class MenuChoiceInputValidator(InputValidator):
     __menu_options = ['1', '2', '3', '4', '5', '6', '7', '8']
     def is_valid(self, input_val: str)-> Tuple:
         if not input_val.strip().isdigit():
@@ -25,7 +25,7 @@ class MenuChoiceInputValidator:
         else:
             return "Invalid choice, try again.", False
 
-class CouseIDInputValidator:
+class CouseIDInputValidator(InputValidator):
     def is_valid(self, input_val: str)-> Tuple:
         if not input_val.strip().isdigit() or len(input_val) != 8:
             return "Course section/lab id must be an eight digit number. Please try again.", False
