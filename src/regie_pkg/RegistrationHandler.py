@@ -37,7 +37,7 @@ class DropCourseHandler(RegistrationHandler):
     '''handler which updates the database with course section/lab drop'''
     def process_request(self, student_id, course_id):
         self._db.unregister_course(student_id=student_id, course_id=course_id)
-        print("Course drop successful.")  
+        print("Course drop successful")  
         return
 
 
@@ -145,7 +145,7 @@ class AlreadyRegisteredHandler(RegistrationHandler):
         for record in reg_student_sec_result + reg_student_lab_result:
             course_section_or_lab_id = record['course_section_id'] if record.get('course_section_id') is not None else record['lab_id']
             if course_section_or_lab_id == course_id:
-                print(f"Cannot add because you are already registered for course section or lab with id {course_section_or_lab_id}")
+                print(f"Cannot add because you are already registered for a course section or lab with id {course_section_or_lab_id}")
                 return
         return super().process_request(student_id, course_id)
 

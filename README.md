@@ -6,7 +6,8 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
 # A CLI app mock-up of a course registration system
 **Project Scope**: My project focused on implementing student usecases to handle the following actions:
 1. course/lab registration (add course, drop course, drop all course)
-    - a series of eight validations are performed before the database is updated with the requested course registration. This includes checking if the student has met the prerequisite requirements, ensuring the course enrollment is not full, and more. Each validation step has it's own implementation for what occurs when it is not met. For example, if the course enrollment is already at full capacity, the user will be presented with alternative sections of the same course/lab. Details can be found in the "CourseRegistration.py" file under the regie_pkg directory. 
+    - a series of eight validations are performed before the database is updated with the requested course registration. This includes checking if the student has met the prerequisite requirements, ensuring the course enrollment is not full, etc. Each validation step has it's own implementation for what occurs when it is not met. For example, if the course enrollment is already at full capacity, the user will be presented with alternative sections of the same course/lab. Details can be found in the "CourseRegistration.py" file under the regie_pkg directory. 
+
 2. student views (currently registered courses, course schedule, transcript, and account restrictions)
     - currently registered courses: all registered courses are displayed above the menu options after login
     - course schedule: a week view of the student's schedule is displayed along with course details such as location, start and end times, etc.
@@ -26,7 +27,7 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
 
 \*  Please change the *passwd* constant to match whatever password is used for your MySQL instance by going to "MySQLConnect.py" and "build_mysql_db.py". Other parameters may need to be changed depending on your local MySQL set up. 
 - cd into the "src" directory and run the python script "build_mysql_db.py". This will create the MySQL database REGIE_db and populate it with pre-existing data which can be found in the file "populate.sql". 
-- cd into the src directory and run the python script "build_mongo_db.py". This will create the mongodb database password_db and populate it with pre-existing data which can be found in the script "build_mongo_db.py" itself. Mongodb is used to store account passwords.
+- cd into the src directory and run the python script "build_mongo_db.py". This will create the mongodb database password_db and populate it with pre-existing data which can be found in the script "build_mongo_db.py". Mongodb is used to store account passwords.
 
 ### Dropping all databases (MySQL and MongoDB)
 - cd into the src directory and run "drop_all_db.py"
@@ -36,7 +37,7 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
 
 
 ### How to use the app
-- login using the student id and password of any of the student account below:
+- login using the student id and password for any of the accounts below:
     - "Volodymyr Zelenskyy" (use for testing transcript view)
         - student id: 1
         - password: pass123
@@ -52,7 +53,7 @@ Using Python Version 3.9.10, pymongo version 4.0.1, mysql-connector-python 8.0.2
         - section id: 11111113
         - section id: 21111112 (full enrollment, cannot register)
         - lab id: 99999999
-
+        
     - "English Grammar and Syntax"
         - section id: 11111114
 

@@ -1,4 +1,5 @@
 import os, sys, inspect
+from unittest.mock import patch
 import unittest
 ##
 curr_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -43,30 +44,68 @@ class TestDropCourse(unittest.TestCase):
         self.my_sql_connect.execute_query(f'''DELETE FROM lab WHERE lab_id = {self.dropping_lab_id}''', commit=True)
         return
 
-    def test_drop_course_section(self):
+    @patch('builtins.print')
+    def test_drop_course_section(self, mock_print):
         '''dropping course section registration'''
         course_reg = CourseRegistration()
         course_reg.drop_course(student_id=self.student_id, course_id=self.dropping_course_section_id)
+
+        # check enrollment was decremented by 1
+        enrollement_record = self.my_sql_connect.execute_query(f'''SELECT curr_reg FROM course_section WHERE course_section_id = {self.dropping_course_section_id}''')
+        expected_enrollment = 19
+        self.assertEqual(enrollement_record[0]['curr_reg'], expected_enrollment)
+
+        # check record was removed from registered_student_section
         res = self.my_sql_connect.execute_query(f'''SELECT * FROM registered_student_section WHERE course_section_id = {self.dropping_course_section_id}''')
         self.assertEqual(res, [])
+        
+        # test print 
+        mock_print.assert_called_with("Course drop successful")
         return 
 
-    def test_drop_course_lab(self):
+    @patch('builtins.print')
+    def test_drop_course_lab(self, mock_print):
         '''dropping lab registration'''
         course_reg = CourseRegistration()
         course_reg.drop_course(student_id=self.student_id, course_id=self.dropping_lab_id)
+
+        # check enrollment was decremented by 1
+        enrollement_record = self.my_sql_connect.execute_query(f'''SELECT curr_reg FROM lab WHERE lab_id = {self.dropping_lab_id}''')
+        expected_enrollment = 14
+        self.assertEqual(enrollement_record[0]['curr_reg'], expected_enrollment)
+
+        # check record was removed from registered_student_lab
         res = self.my_sql_connect.execute_query(f'''SELECT * FROM registered_student_lab WHERE lab_id = {self.dropping_lab_id}''')
         self.assertEqual(res, [])
+
+        # test print
+        mock_print.assert_called_with("Course drop successful")
         return 
 
-    def test_drop_all(self):
+    @patch('builtins.print')
+    def test_drop_all(self, mock_print):
         '''drop all registrations'''
         course_reg = CourseRegistration()
         course_reg.drop_all(student_id=self.student_id)
         course_section_reg = self.my_sql_connect.execute_query(f'''SELECT * FROM registered_student_section WHERE student_id = {self.student_id}''')
         lab_reg = self.my_sql_connect.execute_query(f'''SELECT * FROM registered_student_lab WHERE student_id = {self.student_id}''')
+
+        # check enrollment was decremented by 1
+        enrollement_record = self.my_sql_connect.execute_query(f'''SELECT curr_reg FROM course_section WHERE course_section_id = {self.dropping_course_section_id}''')
+        expected_enrollment = 19
+        self.assertEqual(enrollement_record[0]['curr_reg'], expected_enrollment)
+
+        # check enrollment was decremented by 1
+        enrollement_record = self.my_sql_connect.execute_query(f'''SELECT curr_reg FROM lab WHERE lab_id = {self.dropping_lab_id}''')
+        expected_enrollment = 14
+        self.assertEqual(enrollement_record[0]['curr_reg'], expected_enrollment)
+
+        # check record was removed from registered_student_section and registered_student_lab
         self.assertEqual(course_section_reg, [])
         self.assertEqual(lab_reg, [])
+
+        # test print
+        mock_print.assert_called_with("Dropped all courses")
         return 
 
 
