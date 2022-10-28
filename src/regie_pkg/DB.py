@@ -1,3 +1,4 @@
+from .Faculty import Faculty
 from .MySQLConnect import MySQLConnect
 from .Student import Student
 from typing import List, Set, Dict
@@ -25,11 +26,17 @@ class DB:
                 restrictions=student_result[0]['restriction'],
             )
 
-    def get_faculty_profile(self, faculty_id) -> Dict: 
+    def get_faculty(self, faculty_id) -> Faculty: 
         faculty_result = self.__my_sql_connect.execute_query(
                         f'''SELECT * FROM faculty WHERE faculty_id = {faculty_id};'''
                         )
-        return faculty_result[0]
+        return Faculty(
+                name=faculty_result[0]['name'], 
+                status=faculty_result[0]['status'],
+                email=faculty_result[0]['email'], 
+                id=faculty_result[0]['faculty_id'],
+                title=faculty_result[0]['title'],
+            )
 
     def get_lab_info(self, lab_id) -> Dict:
         lab_result = self.__my_sql_connect.execute_query(

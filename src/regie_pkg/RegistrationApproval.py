@@ -31,9 +31,9 @@ class RegistrationApproval(IApprovalRequired, IStudentOverload):
         student = self.__db.get_student(student_id=student_id)
         ids_of_instructors = self.__db.get_all_instructors_of_course(id=course_id)
         instructor_id = ids_of_instructors[0]
-        instructor_result = self.__db.get_faculty_profile(faculty_id=instructor_id)
+        instructor = self.__db.get_faculty(faculty_id=instructor_id)
 
-        self.notification_service.notif_strategy = self.Email(sender=student.email, to=instructor_result['email'], 
+        self.notification_service.notif_strategy = self.Email(sender=student.email, to=instructor.email, 
                                                        subject='course registration approval request', 
                                                        body='I am requesting approval to register for your approval required course.')
         self.notification_service.send_notification()
