@@ -36,11 +36,10 @@ class ViewRegisteredCourses(StudentView):
 
 class ViewRestrictions(StudentView):
     def view(self, student_id):
-        student_result = self._db.get_student_profile(student_id=student_id)
-        student_restrictions = student_result['restriction']
-        print(f"\033[1mStudent Restrictions:\033[0m {student_restrictions}")
+        student = self._db.get_student(student_id=student_id)
+        print(f"\033[1mStudent Restrictions:\033[0m {student.restrictions}")
         print("")
-        return student_restrictions
+        return student.restrictions
 
 class ViewTranscript(StudentView):
     __quarter_order = {
@@ -61,8 +60,8 @@ class ViewTranscript(StudentView):
             record['course_name'] = course_info['name'] # course name
         
         completed_courses_result.sort(key=self.__compare, reverse=True) # sorting based on year (descending) and quarter
-        student_result = self._db.get_student_profile(student_id=student_id)
-        self.__ViewTranscript_display(completed_courses_result, student_profile_dict=student_result)        
+        student = self._db.get_student(student_id=student_id)
+        self.__ViewTranscript_display(completed_courses_result, student=student)        
 
 
     def __compare(self, elem):
@@ -74,11 +73,11 @@ class ViewTranscript(StudentView):
         return (year, quarter_num)
 
     @staticmethod
-    def __ViewTranscript_display(res, student_profile_dict):
-        print(f"\033[4m\033[1mAcademic Transcript of {student_profile_dict['name']}:\033[0m")
-        print(f"Status: {student_profile_dict['status']}")
-        print(f"Major: {student_profile_dict['major']}")
-        print(f"Student ID: {student_profile_dict['student_id']}")
+    def __ViewTranscript_display(res, student):
+        print(f"\033[4m\033[1mAcademic Transcript of {student.name}:\033[0m")
+        print(f"Status: {student.status}")
+        print(f"Major: {student.major}")
+        print(f"Student ID: {student.id}")
         print("")
         for idx, r in enumerate(res):
             if idx > 0 and (res[idx-1]['year'] != r['year'] or res[idx-1]['quarter'] != r['quarter']): # create separation for new year or quarter

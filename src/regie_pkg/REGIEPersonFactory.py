@@ -10,16 +10,7 @@ class REGIEPersonFactory:
             return self.__create_student(id)
 
     def __create_student(self, student_id):
-        student_res = self.__db.get_student_profile(student_id=student_id)
-        return Student(
-                        name=student_res['name'], 
-                        status=student_res['status'], 
-                        department=student_res['department'], 
-                        division=student_res['division'], 
-                        email=student_res['email'], 
-                        id=student_res['student_id'], 
-                        major=student_res['student_id']
-                    )
+        return self.__db.get_student(student_id=student_id)
 
 
     # def __create_admin(self, admin_id):

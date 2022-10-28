@@ -67,9 +67,8 @@ class ClosedCourseHandler(RegistrationHandler):
 class StudentRestrictionsHandler(RegistrationHandler):
     '''handler for request to register for a course section/lab by a student with account restrictions'''
     def process_request(self, student_id, course_id):
-        student_result = self._db.get_student_profile(student_id=student_id)
-        student_restriction = student_result['restriction']
-        if student_restriction is not None:
+        student = self._db.get_student(student_id=student_id)
+        if student.restrictions is not None:
             print(f"Cannot add course because you have the following restriction(s): {student_restriction}")
             return
         return super().process_request(student_id, course_id) 
@@ -79,11 +78,10 @@ class StudentOverloadHandler(RegistrationHandler):
     '''handler for request to register for a course section/lab that requires overloading approval'''
     registration_approval: IStudentOverload = RegistrationApproval() # helper for executing actions when overload approval is needed
     def process_request(self, student_id, course_id):
-        student_result = self._db.get_student_profile(student_id=student_id)
-        student_status = student_result['status']
+        student = self._db.get_student(student_id=student_id)
         all_reg_sec_result = self._db.get_all_registered_course_sections(student_id=student_id)
-        if (student_status == 'full-time' and len(all_reg_sec_result) >= 3) or \
-           (student_status == 'part-time' and len(all_reg_sec_result) >= 2):
+        if (student.status == 'full-time' and len(all_reg_sec_result) >= 3) or \
+           (student.status == 'part-time' and len(all_reg_sec_result) >= 2):
             self.registration_approval.StudentOverloadHandler(student_id=student_id)
             return  
         else:

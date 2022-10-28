@@ -1,19 +1,29 @@
 from .MySQLConnect import MySQLConnect
+from .Student import Student
 from typing import List, Set, Dict
 
 
 class DB:
-    '''This class serves as an interface for objects to communicate with the MySQL database.
-       The queries in each of these methods are general enough 
-       to be used by a variety of classes.'''
+    '''This class serves as the interface to communicate with the MySQL database.
+       The methods in this class create domain layer objects or updates the database.
+    '''
 
     __my_sql_connect = MySQLConnect()
 
-    def get_student_profile(self, student_id) -> Dict: 
+    def get_student(self, student_id) -> Student: 
         student_result = self.__my_sql_connect.execute_query(
                         f'''SELECT * FROM student WHERE student_id = {student_id};'''
                         )
-        return student_result[0]
+        return Student(
+                name=student_result[0]['name'], 
+                status=student_result[0]['status'], 
+                department=student_result[0]['department'], 
+                division=student_result[0]['division'], 
+                email=student_result[0]['email'], 
+                id=student_result[0]['student_id'], 
+                major=student_result[0]['major'],
+                restrictions=student_result[0]['restriction'],
+            )
 
     def get_faculty_profile(self, faculty_id) -> Dict: 
         faculty_result = self.__my_sql_connect.execute_query(
