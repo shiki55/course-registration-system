@@ -10,7 +10,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 class MySQLConnect(metaclass=Singleton):
-    def execute_query(self, query, commit=False, multi=False) -> List[dict]:
+    def execute_query(self, query, commit=False, multi=False, database="REGIE_db") -> List[dict]:
         '''Method to execute SQL queries.
            Returns a list of dictionaries where each dictionary represents
            a record (row) in the result-set of the query.
@@ -20,7 +20,7 @@ class MySQLConnect(metaclass=Singleton):
                                     user="root",
                                     port="3307",
                                     passwd="123abc",
-                                    database="REGIE_db"
+                                    database=database
                                     )
         my_cursor = connection.cursor(dictionary=True)
         if multi:
