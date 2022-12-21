@@ -1,22 +1,21 @@
+"""This module provides a class for interacting with a MongoDB database."""
 
 from regie_pkg.get_mongo_client import get_mongo_client
 
-
 class MongoDB:
-    '''serves as an interface for classes/objects to communicate w/ MongoDB'''
-
+    """Serves as the interface through which domain objects communicate with MongoDB"""
     __mongo_client = get_mongo_client()
 
     def verify(self, id, curr_password, collection_name) -> bool:
-        '''verifies whether id (student_id, faculty_id, admin_id) and password is correct'''
+        """Verify whether the given ID and password are correct."""
         password_db = self.__mongo_client['password_db']
         res = password_db[collection_name].find_one({str(id): curr_password})
         if res is None:
             return False
         return True
-    
+
     def change_password(self, id, new_password, collection_name) -> None:
-        '''updates mongodb w/ new password for the given id (student_id, faculty_id, admin_id)'''
+        """Update the password for the given ID in the database."""
         password_db = self.__mongo_client['password_db']
         res = password_db[collection_name].find_one({str(id): {'$exists': 'true'}})
         mongo_id = res['_id'] # id of post
