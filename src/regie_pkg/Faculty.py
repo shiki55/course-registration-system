@@ -1,6 +1,6 @@
 """This module contains the `Faculty` class."""
 
-from .REGIEPerson import REGIEPerson
+from .regie_person import REGIEPerson
 
 class Faculty(REGIEPerson):
     """This class represents a faculty member."""
