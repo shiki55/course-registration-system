@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 class NotificationStrategy(ABC):
     """
     An abstract base class for notification strategies.
