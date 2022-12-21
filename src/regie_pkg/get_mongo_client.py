@@ -1,3 +1,5 @@
+"""This module contains a function to return a MongoDB client."""
+
 from pymongo import MongoClient
 
 def get_mongo_client() -> MongoClient:
@@ -7,4 +9,3 @@ def get_mongo_client() -> MongoClient:
     host = 'localhost'
     port = 27017
     return MongoClient(f'mongodb://{username}:{password}@{host}:{port}/')
-    
