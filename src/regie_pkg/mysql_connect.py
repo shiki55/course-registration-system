@@ -9,6 +9,7 @@ import mysql.connector
 from typing import List
 
 class Singleton(type):
+    """Singleton design pattern"""
     _instances = {}
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -50,8 +51,3 @@ class MySQLConnect(metaclass=Singleton):
         my_cursor.close()
         connection.close()
         return res
-
-
-
-
-
