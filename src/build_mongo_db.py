@@ -4,7 +4,12 @@
 
 from pymongo import MongoClient
 
-mongo_client = MongoClient()
+username = 'root'
+password = '123abc'
+host = 'localhost'
+port = 27017
+mongo_client = MongoClient(f'mongodb://{username}:{password}@{host}:{port}/')
+
 mongo_client.drop_database('password_db') # drop password_db database
 password_db = mongo_client['password_db'] # password_db database
 student = password_db['student'] # student collection

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from .Email import Email
 from .NotificationService import NotificationService
-from .DB import DB
+from .mysql_db import MySQLDB
 
 class IApprovalRequired(ABC):
     @abstractmethod
@@ -17,7 +17,7 @@ class RegistrationApproval(IApprovalRequired, IStudentOverload):
     '''Implements the necessary procedures when approval/permission is required for 
        the ApprovalRequiredHandler and StudentOverloadHandler classes'''
 
-    __db = DB()
+    __db = MySQLDB()
     notification_service = NotificationService()
     Email = Email
     def ApprovalRequiredHandler(self, student_id, course_id):
@@ -29,9 +29,8 @@ class RegistrationApproval(IApprovalRequired, IStudentOverload):
         '''
         print("Instructor approval is required to register for this course. Approval request email will be sent.")
         student = self.__db.get_student(student_id=student_id)
-        ids_of_instructors = self.__db.get_all_instructors_of_course(id=course_id)
-        instructor_id = ids_of_instructors[0]
-        instructor = self.__db.get_faculty(faculty_id=instructor_id)
+        instructors = self.__db.get_all_instructors_of_course(id=course_id)
+        instructor = instructors[0]
 
         self.notification_service.notif_strategy = self.Email(sender=student.email, to=instructor.email, 
                                                        subject='course registration approval request', 

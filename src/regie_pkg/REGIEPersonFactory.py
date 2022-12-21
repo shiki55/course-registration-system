@@ -1,10 +1,10 @@
-from .DB import DB
+from .mysql_db import MySQLDB
 from .Student import Student
 from .REGIEPerson import REGIEPerson
 
 class REGIEPersonFactory:
     '''factory which returns an instance of a concrete class that inherits from the REGIEPerson abstract class'''
-    __db = DB()
+    __db = MySQLDB()
     def get_person(self, id, account_type) -> REGIEPerson:
         if account_type.lower() == "student":
             return self.__create_student(id)

@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from .RegistrationApproval import RegistrationApproval, IStudentOverload, IApprovalRequired
 from .RegistrationAlternative import RegistrationAlternative
-from .ScheduleConflict import ScheduleConflict
-from .DB import DB
+from .enrollable import Enrollable
+from .mysql_db import MySQLDB
+from .text_formatting import insert_newline, bold
 
 class RegistrationHandler(ABC):
     '''Chain of Responsibility'''
     next_handler_obj = None
-    _db = DB() # protected
+    _db = MySQLDB() # protected
     
     def set_next(self, handler_obj):
         self.next_handler_obj = handler_obj
@@ -22,16 +23,14 @@ class RegistrationHandler(ABC):
 class NotRegisteredHandler(RegistrationHandler):
     '''handler for a request to drop a course the student is not registered for'''
     def process_request(self, student_id, course_id):
-        all_reg_sec_result = self._db.get_all_registered_course_sections(student_id=student_id)
-        all_reg_lab_result = self._db.get_all_registered_labs(student_id=student_id) 
-        for record in all_reg_sec_result + all_reg_lab_result:
-            course_section_or_lab_id = record['course_section_id'] if record.get('course_section_id') is not None else record['lab_id']
-            if course_section_or_lab_id == course_id:
+        all_reg_sec_result: Enrollable = self._db.get_all_registered_course_sections(student_id=student_id)
+        all_reg_lab_result: Enrollable = self._db.get_all_registered_labs(student_id=student_id) 
+        for enrollable in all_reg_sec_result + all_reg_lab_result:
+            if enrollable.id == course_id:
                 return super().process_request(student_id, course_id)
     
         print(f"Cannot drop because you are not registered for a course section or lab with id {course_id}.")
         return 
-
 
 class DropCourseHandler(RegistrationHandler):
     '''handler which updates the database with course section/lab drop'''
@@ -39,7 +38,6 @@ class DropCourseHandler(RegistrationHandler):
         self._db.unregister_course(student_id=student_id, course_id=course_id)
         print("Course drop successful")  
         return
-
 
 class CourseDoesNotExistHandler(RegistrationHandler):
     '''handler for request to register for a course section/lab which does not exist'''
@@ -53,14 +51,14 @@ class ClosedCourseHandler(RegistrationHandler):
     registration_alternative = RegistrationAlternative()
     '''handler for request to register for a course section/lab which is closed'''
     def process_request(self, student_id, course_id):
-        course_sec_result = self._db.get_course_section_info(course_section_id=course_id)
-        lab_result = self._db.get_lab_info(lab_id=course_id)
-        record = course_sec_result if course_sec_result is not None else lab_result
-        if record['curr_reg'] >= record['max_reg']:
-            print("Courses section or lab is full. Cannot add.") # TODO: show alternatives (implement this when you have more data)
+        course_section = self._db.get_course_section(course_section_id=course_id)
+        lab = self._db.get_lab(lab_id=course_id)
+        enrollable: Enrollable = course_section  if course_section is not None else lab
+        if enrollable.curr_reg >= enrollable.max_reg:
+            print("Courses section or lab is full. Cannot add.") 
             print("Pulling up alternative registration options...")
             print("")
-            self.registration_alternative.find_alternatives(id=record.get('course_section_id', record.get('lab_id')))
+            self.registration_alternative.find_alternatives(id=enrollable.id)
             return 
         return super().process_request(student_id, course_id) 
 
@@ -69,7 +67,7 @@ class StudentRestrictionsHandler(RegistrationHandler):
     def process_request(self, student_id, course_id):
         student = self._db.get_student(student_id=student_id)
         if student.restrictions is not None:
-            print(f"Cannot add course because you have the following restriction(s): {student_restriction}")
+            print(f"Cannot add course because you have the following restriction(s): {student.restrictions}")
             return
         return super().process_request(student_id, course_id) 
 
@@ -91,19 +89,16 @@ class StudentOverloadHandler(RegistrationHandler):
 class PrerequisiteNotMetHandler(RegistrationHandler):
     '''handler for request to register for a course section/lab for which the student does not have the prerequisites met'''
     def process_request(self, student_id, course_id):
-        courses_taken_result = self._db.get_all_completed_courses(student_id=student_id)
-        courses_taken_set = {record['course_id'] for record in courses_taken_result}
-        required_prereqs_result = self._db.get_all_prereqs(course_id)
-        required_prereqs_set = set(required_prereqs_result)
-        if len(required_prereqs_set) > 0 and \
-           len(courses_taken_set.intersection(required_prereqs_set)) < len(required_prereqs_set):
-           print("")
+        courses_taken = {course.id for course in self._db.get_completed_courses(student_id=student_id)}
+        required_prereqs = {course.id for course in self._db.get_all_prereqs(id=student_id)}
+        if len(courses_taken.intersection(required_prereqs)) < len(required_prereqs):
+           insert_newline()
            print("Cannot add because you have not taken the prerequisites.")
            print("The following course(s) must be taken and completed before registering for the requested course:")
-           for need_to_take_course_id in required_prereqs_set-courses_taken_set:
-               course_info = self._db.get_course_info(course_id=need_to_take_course_id)
-               print(f"\033[1m\tCourse Name:\033[0m {course_info['name']}")
-           return 
+           for need_to_take_course_id in required_prereqs-courses_taken:
+               course = self._db.get_course(course_id=need_to_take_course_id)
+               print(bold("\tCourse Name: ") + f"{course.name}")
+           return
         return super().process_request(student_id, course_id)
 
 class ApprovalRequiredHandler(RegistrationHandler):
@@ -114,10 +109,9 @@ class ApprovalRequiredHandler(RegistrationHandler):
 
         if not self._db.is_course_section(course_id): # registration is not for a course section so approval not required
             return super().process_request(student_id, course_id)
-        course_sec_result = self._db.get_course_section_info(course_section_id=course_id)
-        base_course_id = course_sec_result['course_id']
-        course_result = self._db.get_course_info(course_id=base_course_id)
-        if course_result['approval_req']:
+        course_section = self._db.get_course_section(course_section_id=course_id)
+        course = self._db.get_course(course_id=course_section.course_id)
+        if course.approval_req:
             self.registration_approval.ApprovalRequiredHandler(student_id, course_id)
             return
 
@@ -138,47 +132,36 @@ class AddCourseHandler(RegistrationHandler):
 class AlreadyRegisteredHandler(RegistrationHandler):
     '''handler for request to register for a course section/lab for which the student is already registered for'''
     def process_request(self, student_id, course_id):
-        reg_student_sec_result = self._db.get_all_registered_course_sections(student_id=student_id)
-        reg_student_lab_result = self._db.get_all_registered_labs(student_id=student_id)
-        for record in reg_student_sec_result + reg_student_lab_result:
-            course_section_or_lab_id = record['course_section_id'] if record.get('course_section_id') is not None else record['lab_id']
-            if course_section_or_lab_id == course_id:
-                print(f"Cannot add because you are already registered for a course section or lab with id {course_section_or_lab_id}")
+        course_sections: Enrollable = self._db.get_all_registered_course_sections(student_id=student_id)
+        labs: Enrollable = self._db.get_all_registered_labs(student_id=student_id)
+        for enrollable in course_sections + labs:
+            if enrollable.id == course_id:
+                print(f"Cannot add because you are already registered for a course section or lab with id {enrollable.id}")
                 return
         return super().process_request(student_id, course_id)
 
 
 class ScheduleConflictHandler(RegistrationHandler):
     '''handler for request to register for a course section/lab which leads to schedule conflict'''
-    schedule_conflict = ScheduleConflict()
     def process_request(self, student_id, course_id):
-        course_section_or_lab_info = self._db.get_course_section_info(course_section_id=course_id) if self._db.is_course_section(id=course_id) \
-                                     else self._db.get_lab_info(lab_id=course_id)
-        all_registered_records = []
-        for record in self._db.get_all_registered_course_sections(student_id=student_id) + self._db.get_all_registered_labs(student_id=student_id):
-            course_section_or_lab_id = record['course_section_id'] if record.get('course_section_id') is not None else record['lab_id']
-            if self._db.is_course_section(id=course_section_or_lab_id):
-                all_registered_records.append(self._db.get_course_section_info(course_section_id=course_section_or_lab_id))
-            else:
-                all_registered_records.append(self._db.get_lab_info(lab_id=course_section_or_lab_id))
+        target_enrollment = self._db.get_course_section(course_section_id=course_id) if self._db.is_course_section(id=course_id) \
+                                     else self._db.get_lab(lab_id=course_id)
+        # all course sections and labs the student is enrolled in
+        all_registered = self._db.get_all_registered_course_sections(student_id=student_id) + \
+                         self._db.get_all_registered_labs(student_id=student_id)
+        
+        all_conflicts = []
+        for enrollable in all_registered:
+            if target_enrollment.schedule_conflict_with(enrollable):
+                all_conflicts.append(enrollable)
 
-        all_conflicts = self.schedule_conflict.get_all_conflicts(
-                                                                desired_course_or_lab=course_section_or_lab_info,
-                                                                all_registered=all_registered_records
-                                                                )
         if all_conflicts:
             print("Cannot register due to scheduling conflicts with the following courses:")
-            print("")
-            for conflicting_id in all_conflicts:
-                if self._db.is_course_section(id=conflicting_id):
-                    course_type = 'lecture'
-                    course_name = self._db.get_course_name_from_section_id(course_section_id=conflicting_id)
-                else:
-                    course_type = 'lab'
-                    course_name = self._db.get_course_name_from_lab_id(lab_id=conflicting_id)
-                print(f"\033[1m\tCourse Name:\033[0m {course_name}")
-                print(f"\033[1m\tType:\033[0m {course_type}")
-                print("")
+            insert_newline()
+            for enrollable in all_conflicts:
+                print(bold("\tCourse Name: ") + enrollable.name)
+                print(bold("\tType: ") + enrollable.course_type)
+                insert_newline()
             return
         return super().process_request(student_id, course_id)
         

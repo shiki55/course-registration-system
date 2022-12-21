@@ -28,7 +28,7 @@ class TestChangePassword(TestCase):
     def test_change_password_student(self, mock_input):
         new_password = 'new_password'
         mock_input.side_effect = [self.initial_password, new_password] # mock inputs
-        self.student_obj._change_password()
+        self.student_obj.change_password()
         res = self.mongo_client.password_db.student.find_one({self.student_id: {'$exists': 'true'}})
         actual_password = res[self.student_id]
         self.assertEqual(actual_password, new_password)

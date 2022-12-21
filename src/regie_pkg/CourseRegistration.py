@@ -1,4 +1,4 @@
-from .DB import DB
+from .mysql_db import MySQLDB
 from .RegistrationHandler import (
                                 NotRegisteredHandler, 
                                 DropCourseHandler,
@@ -29,7 +29,7 @@ class CourseRegistration:
                                                     ScheduleConflictHandler(),
                                                     AddCourseHandler(),
                                                 )
-        self.__db = DB()
+        self.__db = MySQLDB()
     
     def add_course(self, student_id, course_id):
         '''
@@ -66,11 +66,10 @@ class CourseRegistration:
     def drop_all(self, student_id):
         '''drop all course section/lab registrations'''
 
-        all_reg_course_sec = self.__db.get_all_registered_course_sections(student_id=student_id)
-        all_reg_lab = self.__db.get_all_registered_labs(student_id=student_id)
-        for record in all_reg_course_sec + all_reg_lab:
-            id_to_drop = record['course_section_id'] if record.get('course_section_id') is not None else record['lab_id']
-            self.__db.unregister_course(student_id=student_id, course_id=id_to_drop)
+        course_sections = self.__db.get_all_registered_course_sections(student_id=student_id)
+        labs = self.__db.get_all_registered_labs(student_id=student_id)
+        for enrollable in course_sections + labs:
+            self.__db.unregister_course(student_id=student_id, course_id=enrollable.id)
         print("Dropped all courses")
         return 
     
@@ -83,6 +82,5 @@ class CourseRegistration:
         first_handler = args[0]
         prev_handler = first_handler
         for handler in args[1:]:
-            prev_handler.set_next(handler)
-            prev_handler = handler
+            prev_handler = prev_handler.set_next(handler)
         return first_handler

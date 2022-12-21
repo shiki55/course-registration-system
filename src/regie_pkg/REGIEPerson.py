@@ -12,7 +12,7 @@ class REGIEPerson(ABC):
         self.email = email
         self.id = id
 
-    def _change_password(self): # protected method
+    def change_password(self): # protected method
         class_name = type(self).__name__.lower() # name of the subclass which calls this method
         while True:
             curr_pwd_input = input("Enter your current password: ")

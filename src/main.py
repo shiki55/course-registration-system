@@ -105,7 +105,7 @@ def main():
             elif user_choice == 6:
                 course_reg.drop_all(student_id=student.id)
             elif user_choice == 7:
-                student._change_password()
+                student.change_password()
             elif user_choice == 8:
                 print("Logging off")
                 for _ in range(3):
