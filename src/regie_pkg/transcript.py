@@ -6,6 +6,8 @@ to view a student's transcript, which is a list of courses that the
 student has completed.
 """
 
+from prettytable import PrettyTable, ALL
+
 from .mysql_db import MySQLDB
 from .student import Student
 from .course import CompletedCourse
@@ -66,11 +68,12 @@ class Transcript:
         print(f"Major: {self.student.major}")
         print(f"Student ID: {self.student.id}")
         insert_newline()
-        for idx, course in enumerate(completed_courses_sorted):
-            if idx > 0 and (completed_courses_sorted[idx-1].year != course.year or
-                            completed_courses_sorted[idx-1].quarter != course.quarter): # create separation for new year or quarter
-                print("---------------------")
-            print(f"course: {course.name}, grade: {course.grade}, year: {course.year}, quarter: {course.quarter}")
+        pt = PrettyTable(field_names=list(map(lambda name: underline(bold(name)),
+                        ["course", "grade", "year", "quarter"])),
+                        hrules=ALL)
+        for course in completed_courses_sorted:
+            pt.add_row([course.name, course.grade, course.year, course.quarter])
+        print(pt)
         insert_newline()
 
     def __compare(self, course: CompletedCourse):
