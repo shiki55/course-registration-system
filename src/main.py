@@ -1,22 +1,21 @@
 import shutil
 from time import sleep
-from regie_pkg.UserAuthenticator import UserAuthenticator
-from regie_pkg.REGIEPersonFactory import REGIEPersonFactory
-from regie_pkg.Student import Student
-from regie_pkg.StudentView import (
-                                    ViewRegisteredCourses, 
-                                    ViewRestrictions, 
-                                    ViewTranscript, 
+from regie_pkg.user_authenticator import UserAuthenticator
+from regie_pkg.regie_person_factory import REGIEPersonFactory
+from regie_pkg.student import Student
+from regie_pkg.student_view import (
+                                    ViewRegisteredCourses,
+                                    ViewRestrictions,
+                                    ViewTranscript,
                                     ViewSchedule,
                                     )
-from regie_pkg.CourseRegistration import CourseRegistration
-from regie_pkg.InputValidator import (
+from regie_pkg.course_registration import CourseRegistration
+from regie_pkg.input_validator import (
                                         StudentIDInputValidator,
                                         MenuChoiceInputValidator,
                                         ValidationExecutor,
                                         CouseIDInputValidator,
                                      )
-
 
 def login() -> Student:
     auth = UserAuthenticator()
@@ -36,7 +35,7 @@ def login() -> Student:
             print("Login credentials authenticated.")
             print("")
             return person_factory.get_person(id=student_id_input, account_type=account_type)
-        else: 
+        else:
             print("Wrong student id or password. Try again.")
             print("")
 
@@ -112,7 +111,7 @@ def main():
                     print("")
                     sleep(0.75)
                 break
-        
+
             print("")
             input("\033[1mHit Enter to go back to Menu options\033[0m")
             print("")
