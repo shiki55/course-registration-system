@@ -3,8 +3,8 @@
 from typing import List
 
 from .faculty import Faculty
-from .MySQLConnect import MySQLConnect
-from .Student import Student
+from .mysql_connect import MySQLConnect
+from .student import Student
 from .enrollable import Lab
 from .enrollable import CourseSection
 from .course import Course
