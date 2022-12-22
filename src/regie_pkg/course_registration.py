@@ -3,8 +3,8 @@ This module contains the CourseRegistration class, which provides an interface
 for all course registration actions
 """
 
-from.mysql_db import MySQLDB
-from .RegistrationHandler import (
+from .mysql_db import MySQLDB
+from .registration_handler import (
                                 NotRegisteredHandler,
                                 DropCourseHandler,
                                 AlreadyRegisteredHandler,
@@ -91,3 +91,4 @@ class CourseRegistration:
         for handler in args[1:]:
             prev_handler = prev_handler.set_next(handler)
         return first_handler
+
