@@ -135,7 +135,7 @@ class PrerequisiteNotMetHandler(RegistrationHandler):
     """
     def process_request(self, student_id, course_id):
         courses_taken = {course.id for course in self._db.get_completed_courses(student_id=student_id)}
-        required_prereqs = {course.id for course in self._db.get_all_prereqs(id=student_id)}
+        required_prereqs = {course.id for course in self._db.get_all_prereqs(id=course_id)}
         if len(courses_taken.intersection(required_prereqs)) < len(required_prereqs):
             insert_newline()
             print("Cannot add because you have not taken the prerequisites.")
