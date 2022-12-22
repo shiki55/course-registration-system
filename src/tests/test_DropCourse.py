@@ -6,8 +6,8 @@ curr_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
 parent_dir = os.path.dirname(curr_dir)
 sys.path.append(parent_dir)
 ##
-from regie_pkg.MySQLConnect import MySQLConnect
-from regie_pkg.CourseRegistration import CourseRegistration
+from regie_pkg.mysql_connect import MySQLConnect
+from regie_pkg.course_registration import CourseRegistration
 
 class TestDropCourse(unittest.TestCase):
     '''testing all drop course functionalities'''
@@ -22,13 +22,13 @@ class TestDropCourse(unittest.TestCase):
         self.my_sql_connect.execute_query(f'''DELETE FROM course_section WHERE course_section_id = {self.dropping_course_section_id}''', commit=True)
         self.my_sql_connect.execute_query(f'''DELETE FROM student WHERE student_id = {self.student_id}''', commit=True)
         self.my_sql_connect.execute_query(f'''DELETE FROM lab WHERE lab_id = {self.dropping_lab_id}''', commit=True)
-        self.my_sql_connect.execute_query(f'''INSERT INTO student (student_id, name, status, division, department, email, major, restriction) VALUES 
+        self.my_sql_connect.execute_query(f'''INSERT INTO student (student_id, name, status, division, department, email, major, restriction) VALUES
                                               ({self.student_id}, 'James Bond', 'full-time', 'Division of Physical Sciences', 'Department of Mathematics', 'bond@uchicago.edu', 'mathematics', null);'''
-                                              ,commit=True)            
-        self.my_sql_connect.execute_query(f'''INSERT INTO lab (lab_id, max_reg, curr_reg, days_of_week, start_time, end_time, location, year, quarter, course_id) VALUES 
+                                              ,commit=True)
+        self.my_sql_connect.execute_query(f'''INSERT INTO lab (lab_id, max_reg, curr_reg, days_of_week, start_time, end_time, location, year, quarter, course_id) VALUES
                                               ({self.dropping_lab_id}, 30, 15, 'Fri', '5:00 PM', '6:00 PM', 'Ryerson Laboratory, Room 115', 2022, 'spring', 11111111);'''
                                               ,commit=True)
-        self.my_sql_connect.execute_query(f'''INSERT INTO course_section (course_section_id, max_reg, curr_reg, days_of_week, start_time, end_time, location, year, quarter, course_id) VALUES 
+        self.my_sql_connect.execute_query(f'''INSERT INTO course_section (course_section_id, max_reg, curr_reg, days_of_week, start_time, end_time, location, year, quarter, course_id) VALUES
                                               ({self.dropping_course_section_id}, 50, 20, 'Mon, Wed, Fri', '5:00 PM', '6:30 PM', 'John Crerar Library, Room 320', 2022, 'spring', 11111111);'''
                                               ,commit=True)
         self.my_sql_connect.execute_query(f'''INSERT INTO registered_student_lab (lab_id, student_id) VALUES ({self.dropping_lab_id}, {self.student_id});'''
@@ -58,10 +58,10 @@ class TestDropCourse(unittest.TestCase):
         # check record was removed from registered_student_section
         res = self.my_sql_connect.execute_query(f'''SELECT * FROM registered_student_section WHERE course_section_id = {self.dropping_course_section_id}''')
         self.assertEqual(res, [])
-        
-        # test print 
+
+        # test print
         mock_print.assert_called_with("Course drop successful")
-        return 
+        return
 
     @patch('builtins.print')
     def test_drop_course_lab(self, mock_print):
@@ -80,7 +80,7 @@ class TestDropCourse(unittest.TestCase):
 
         # test print
         mock_print.assert_called_with("Course drop successful")
-        return 
+        return
 
     @patch('builtins.print')
     def test_drop_all(self, mock_print):
@@ -106,11 +106,11 @@ class TestDropCourse(unittest.TestCase):
 
         # test print
         mock_print.assert_called_with("Dropped all courses")
-        return 
+        return
 
 
 
 if __name__ == '__main__':
     unittest.main()
-    
+
 

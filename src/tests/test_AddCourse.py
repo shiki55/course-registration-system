@@ -6,8 +6,8 @@ curr_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
 parent_dir = os.path.dirname(curr_dir)
 sys.path.append(parent_dir)
 ##
-from regie_pkg.MySQLConnect import MySQLConnect
-from regie_pkg.CourseRegistration import CourseRegistration
+from regie_pkg.mysql_connect import MySQLConnect
+from regie_pkg.course_registration import CourseRegistration
 
 
 class TestAddCourse(unittest.TestCase):
@@ -102,7 +102,7 @@ class TestAddCourse(unittest.TestCase):
         student_id = self.student_id1
         course_id = self.course_section_id1_databases
         course_reg.add_course(student_id=student_id, course_id=course_id)
-        mock_print.assert_called_with(f"\033[1m\tCourse Name:\033[0m Introduction to Computer Systems")
+        mock_print.assert_called_with(f"\033[1m\tCourse Name: \033[0mIntroduction to Computer Systems")
 
     @patch('builtins.print')
     def test_add_course_already_registered(self, mock_print):
@@ -131,13 +131,13 @@ class TestAddCourse(unittest.TestCase):
         expected_enrollment = 11
         self.assertEqual(enrollement_record[0]['curr_reg'], expected_enrollment)
 
-        # success print statement 
+        # success print statement
         mock_print.assert_called_with(f"Successfully registered for the requested course section.")
 
 
 if __name__ == '__main__':
     unittest.main()
-    
+
 
 
 

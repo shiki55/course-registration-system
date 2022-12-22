@@ -5,9 +5,9 @@ curr_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
 parent_dir = os.path.dirname(curr_dir)
 sys.path.append(parent_dir)
 ##
-from regie_pkg.Student import Student
-from regie_pkg.NotificationService import NotificationService
-from regie_pkg.Email import Email
+from regie_pkg.student import Student
+from regie_pkg.notification_service import NotificationService
+from regie_pkg.email import Email
 
 class TestNotificationService(unittest.TestCase):
     def setUp(self): # ran before each method w/ prefix "test_"
@@ -18,8 +18,8 @@ class TestNotificationService(unittest.TestCase):
             subject="approval request",
             body="I am requesting an approval to enroll in CS123"
         )
-        self.notif_service1 = NotificationService(NotificationStrategy=email)
-    
+        self.notif_service1 = NotificationService(notification_strategy=email)
+
     def test_notification_service(self):
         expected = {
             "sender": "bisping@uchicago.edu",
