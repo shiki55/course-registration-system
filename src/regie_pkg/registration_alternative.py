@@ -18,25 +18,41 @@ class RegistrationAlternative:
                 'sat': 6,
                 'sun': 7,
                 }
-    def find_alternatives(self, id):
-        """Find alternative course section/lab registration options."""
+    def find_alternatives(self, id, schedule_conflict=False):
+        """
+        Find alternative course section/lab registration options.
+
+        Parameters:
+            id: The ID of the course section or lab for which to find alternatives.
+            schedule_conflict: Whether to only return alternatives that
+                               do not have a schedule conflict with the originally
+                               desired course section/lab. Defaults to False.
+
+        Returns:
+            List[Enrollable]: A list of alternative course sections or labs.
+        """
         alternatives: List[Enrollable] # alternative course sections or labs
         if self.__db.is_course_section(id):
-            course_section = self.__db.get_course_section(id)
+            enrollable = self.__db.get_course_section(id)
             alternatives = [ course_section
-                for course_section in self.__db.get_all_course_sections(course_id=course_section.course_id)
+                for course_section in self.__db.get_all_course_sections(course_id=enrollable.course_id)
                 if course_section.id != id
                 ]
         else:
-            lab = self.__db.get_lab(id)
+            enrollable = self.__db.get_lab(id)
             alternatives = [ lab
-                for lab in self.__db.get_all_labs(course_id=lab.course_id)
+                for lab in self.__db.get_all_labs(course_id=enrollable.course_id)
                 if lab.id != id
                 ]
 
         if not alternatives:
             print("No alternative course sections or labs available.\n")
             return
+
+        if schedule_conflict:
+            # alternative enrollables returned must not have a schedule conflict
+            # with the orignally desired course section/lab registration
+            alternatives = [e for e in alternatives if not enrollable.schedule_conflict_with(e)]
 
         alternatives.sort(key=self.__compare) # sort alternatives
         self.__display_alternatives(alternatives)
@@ -57,6 +73,7 @@ class RegistrationAlternative:
 
         print(bold(underline("Alternative Course Section/Lab Offerings:")))
         for enrollable in alternatives:
+            print(f"\tName: {enrollable.name}")
             print(f"\tID: {enrollable.id}")
             print(f"\tDays of Week: {enrollable.days_of_week}")
             print(f"\tStart Time: {enrollable.start_time}")

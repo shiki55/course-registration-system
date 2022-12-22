@@ -195,6 +195,7 @@ class AlreadyRegisteredHandler(RegistrationHandler):
 
 class ScheduleConflictHandler(RegistrationHandler):
     """Handle request to register for a course section/lab which leads to a schedule conflict."""
+    registration_alternative = RegistrationAlternative()
     def process_request(self, student_id, course_id):
         target_enrollment = self._db.get_course_section(course_section_id=course_id) if self._db.is_course_section(id=course_id) \
                                      else self._db.get_lab(lab_id=course_id)
@@ -208,11 +209,15 @@ class ScheduleConflictHandler(RegistrationHandler):
                 all_conflicts.append(enrollable)
 
         if all_conflicts:
-            print("Cannot register due to scheduling conflicts with the following courses:")
+            print("Cannot register due to scheduling conflicts with the following courses you are already registered for:")
             insert_newline()
             for enrollable in all_conflicts:
                 print(bold("\tCourse Name: ") + enrollable.name)
                 print(bold("\tType: ") + enrollable.course_type)
                 insert_newline()
+
+            registration_alternative = RegistrationAlternative()
+            registration_alternative.find_alternatives(id=course_id, schedule_conflict=True)
             return
+
         return super().process_request(student_id, course_id)
