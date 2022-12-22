@@ -1,4 +1,5 @@
 """This module contains a class to find and display alternative course or lab sections."""
+
 from typing import List
 from .enrollable import Enrollable
 from .mysql_db import MySQLDB

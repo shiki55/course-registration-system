@@ -4,7 +4,7 @@ This module provides an abstract class representing a user in the REGIE system.
 
 from abc import ABC
 
-from .MongoDB import MongoDB
+from .mongodb import MongoDB
 from .text_formatting import insert_newline
 
 class REGIEPerson(ABC):
