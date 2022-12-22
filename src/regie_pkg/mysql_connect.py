@@ -6,6 +6,7 @@ of it at any given time so that multiple connections to the database are not cre
 """
 
 import mysql.connector
+
 from typing import List
 
 class Singleton(type):
