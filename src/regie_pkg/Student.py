@@ -1,7 +1,13 @@
 """This module contains the Student class."""
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    # TYPE_CHECKING is True only during type check NOT runtime.
+    # This is needed to resolve circular import issue
+    from .student_view import StudentView
+
 from .regie_person import REGIEPerson
-from .StudentView import StudentView
 
 class Student(REGIEPerson):
     """
@@ -10,6 +16,7 @@ class Student(REGIEPerson):
     Inherits from the REGIEPerson class and adds additional attributes specific to students,
     such as major, division, and restrictions.
     """
+
     def __init__(self,
                 name=None,
                 status=None,
