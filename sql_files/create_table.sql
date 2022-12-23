@@ -1,5 +1,3 @@
-
-
 DROP TABLE IF EXISTS course_prerequisites;
 DROP TABLE IF EXISTS registered_student_section;
 DROP TABLE IF EXISTS registered_student_lab;
@@ -11,7 +9,6 @@ DROP TABLE IF EXISTS lab;
 DROP TABLE IF EXISTS course;
 DROP TABLE IF EXISTS faculty;
 DROP TABLE IF EXISTS student;
-
 
 CREATE TABLE student (
     student_id int,
@@ -90,7 +87,6 @@ CREATE TABLE faculty_lab_section (
     FOREIGN KEY (lab_id) REFERENCES lab(lab_id),
     FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id)
 );
-
 
 CREATE TABLE student_course_grade (
     student_course_grade_id int,

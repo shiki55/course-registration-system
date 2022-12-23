@@ -1,4 +1,3 @@
-
 DROP TABLE IF EXISTS course_prerequisites;
 DROP TABLE IF EXISTS registered_student_section;
 DROP TABLE IF EXISTS registered_student_lab;
