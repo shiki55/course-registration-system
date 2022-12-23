@@ -18,7 +18,23 @@ class Singleton(type):
         return cls._instances[cls]
 
 class MySQLConnect(metaclass=Singleton):
-    def execute_query(self, query, commit=False, multi=False, database="REGIE_db") -> List[dict]:
+    """A class for connecting to a MySQL database and executing SQL queries."""
+
+    database = "REGIE_db"
+
+    @classmethod
+    def set_database(cls, db_name: str) -> None:
+        """
+        Set the name of the database to connect to.
+
+        Note: Before executing the sql command to create a database, set db_name to None.
+
+        Parameters:
+        - db_name (str): The name of the database to connect to.
+        """
+        cls.database = db_name
+
+    def execute_query(self, query, commit=False, multi=False) -> List[dict]:
         """
         Execute a SQL query on the database.
 
@@ -36,7 +52,7 @@ class MySQLConnect(metaclass=Singleton):
                                     user="root",
                                     port="3307",
                                     passwd="123abc",
-                                    database=database
+                                    database=self.database
                                     )
         my_cursor = connection.cursor(dictionary=True)
         if multi:
