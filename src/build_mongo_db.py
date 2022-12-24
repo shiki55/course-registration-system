@@ -1,35 +1,31 @@
-# make sure mongodb is running in the background
+"""
+Module for building a MongoDB database of student account credentials.
 
-'''build mongodb'''
+This module imports the necessary functions and establishes a connection to a MongoDB instance,
+then drops the credential_db database (if it exists), creates the credential_db database,
+creates the student collection in the credential_db database, and inserts the data from the
+account_credentials.json file into the student collection.
 
-from pymongo import MongoClient
+Note:
+- MongoDB must be running in the background.
+"""
 
-username = 'root'
-password = '123abc'
-host = 'localhost'
-port = 27017
-mongo_client = MongoClient(f'mongodb://{username}:{password}@{host}:{port}/')
+import json
 
-mongo_client.drop_database('password_db') # drop password_db database
-password_db = mongo_client['password_db'] # password_db database
-student = password_db['student'] # student collection
-# student id, password pair
-student1 = {'1': 'pass123'}
-student2 = {'2': 'pass123'}
-student3 = {'3': 'pass123'}
-student.insert_many([
-                    student1,
-                    student2,
-                    student3,
-                ])
+from regie_pkg.get_mongo_client import get_mongo_client
 
-
-
+mongo_client = get_mongo_client()
+mongo_client.drop_database('credential_db') # drop credential_db database (if it exists)
+credential_db = mongo_client['credential_db'] # credential_db database
+student = credential_db['student'] # student collection
+with open('../database_files/account_credentials.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
+    student.insert_many(data)
 
 # show all documents
 # mongo_client = MongoClient()
-# password_db = mongo_client['password_db'] # password_db database
-# student = password_db['student'] # student collection
+# credential_db = mongo_client['credential_db'] # credential_db database
+# student = credential_db['student'] # student collection
 # for document in student.find({}):
 #     print(document)
 

@@ -24,11 +24,11 @@ MySQLConnect.set_database("REGIE_db")
 sleep(1)
 
 # create tables
-with open('../sql_files/create_table.sql', encoding='utf-8') as f:
+with open('../database_files/create_table.sql', encoding='utf-8') as f:
     mysql_conn.execute_query(f.read(), multi=True)
 
 sleep(2)
 
 # populate tables
-with open('../sql_files/populate.sql', encoding='utf-8') as f:
+with open('../database_files/populate.sql', encoding='utf-8') as f:
     mysql_conn.execute_query(f.read(), multi=True, commit=True)
